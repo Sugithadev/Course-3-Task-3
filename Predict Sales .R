@@ -329,6 +329,7 @@ predictpolynu_ps<- predict(ps_svmpolynu,ps_testing)
 predictradnu_ps<- predict(ps_svmradnu,ps_testing)
 predictsignu_ps<- predict(ps_svmsignu,ps_testing)
 
+predictlinearnu_ps
 plot(ps_testing$Volume,predictlinearnu_ps)
 
 cor(ps_testing$Volume,predictlinearnu_ps)^2
@@ -375,6 +376,8 @@ res1nu <-resid(ps_svmlinearnu)
 plot(fitted(ps_svmlinearnu), res1nu)
 #add a horizontal line at 0 
 abline(0,0)
+
+
 
 
 
@@ -428,6 +431,7 @@ dfr<-data.frame( method="rf",R2 = R2(preds.rf.ps, ps_testing$Volume),
 #         R2     RMSE      MAE
 #1 0.8645149 1052.192 329.7855
 
+dfr
 
 
 residuals_rf <- residuals(caret.rf.ps)
@@ -465,7 +469,7 @@ dfp<- data.frame( method="parf",R2 = R2(preds.parRF.ps, ps_testing$Volume),
             MAE = MAE(preds.parRF.ps, ps_testing$Volume))
 
 
-
+dfp
 
 #         R2     RMSE      MAE
 #1 0.7293347 1366.312 572.9089
@@ -493,8 +497,7 @@ preds.gbm.ps
 
 dfg<- data.frame( method="gbm",R2 = R2(preds.gbm.ps, ps_testing$Volume),
             RMSE = RMSE(preds.gbm.ps, ps_testing$Volume),
-            MAE = MAE(preds.gbm.ps, ps_testing$Volume),
-            RSQ= r.squared(preds.gbm.ps, ps_testing$Volume))
+            MAE = MAE(preds.gbm.ps, ps_testing$Volume))
 dfg
 
 #         R2     RMSE      MAE
@@ -576,10 +579,27 @@ data.frame( method="svm Linear NU",R2 = R2(predictlinearnu_ps_final, readyData_n
 
 plot(predictlinearnu_ps_final)
 
+# Overfit 
+cor(readyData_np$Volume,predictlinearnu_ps_final)^2
+
+#Predict using RF
+preds.rf.np <- predict(caret.rf.ps, readyData_np)
+preds.rf.np
+data.frame( method="RF",R2 = R2(preds.rf.np, readyData_np$Volume),
+            RMSE = RMSE(preds.rf.np, readyData_np$Volume),
+            MAE = MAE(preds.rf.np, readyData_np$Volume))
+cor(readyData_np$Volume,preds.rf.np)^2
+
+#Third, as the warning messages plainly tell you, some of the vectors you are passing to cor() have zero variance. 
+#They have nothing to do with the NaNs: as the following shows, R doesn't complain about standard deviations of 0 when NaN are involved. 
+#(Quite sensibly too, since you can't calculate standard deviations for undefined numbers):
+
 #write to csv
 output <- df_np 
 output$predictions <- predictlinearnu_ps_final
 write.csv(output, file="C3.T3output.csv", row.names = TRUE)
+
+
 
 
 
